@@ -6,13 +6,22 @@
 # Imports:
 import sys
 import os
+import string
+import time
 
 # Globals:
 FILE_NAME = ''
 BINARY = ''
+INPUT = ''
+WFF = ''
+COMMENT_LINE = []  #  Array - ['c', prob. no., max # literals, (un)solvability]
+PROBLEM_LINE = []  #  Array - ['p', file format, # variables, # clauses]
+
+
 
 #one command line argument --> name of file to read wffs in from
 #binary argument that turns on or off optional tracing 1 yes, 0 not
+
 
 def usage(exit_status=0):
 	print('''Usage: brute-cde.py [FILE_NAME] [BINARY]
@@ -20,12 +29,15 @@ def usage(exit_status=0):
 		BINARY 				1 = Triggers Optional Tracing ; 0 = Suppress Intermediate Output''')
 	sys.exit(exit_status)
 
-def readFile():
-	print('lol')
-#reads in the next wff from a specified input file
 
-def nextPossibleAssignment():
-	print('lol')
+#reads in the next wff from a specified input file
+def readFile():
+	f = open(FILE_NAME, 'r')
+	global INPUT	
+	INPUT = f.read()	
+	#print(INPUT)
+
+#def nextPossibleAssignment():
 #generates the next possible assingment for the current wff you are working with
 
 def verify():
@@ -45,10 +57,46 @@ def output():
 
 
 # Parse Command Line:
-if len(sys.argv[1:]) != 3:
+if len(sys.argv[1:]) != 2:
 	usage(1)
 FILE_NAME = sys.argv[1]
 BINARY = sys.argv[2]
 
-with open(FILE_NAME) as f:
-	lines = f.readlines()
+readFile()
+#INPUT contains raw file
+
+count = 0
+
+lines = INPUT.split('\n')
+
+for line in lines:
+	print(line)
+	# Check For 'c' Lines:
+	if 'c' in line:
+		strippedLine = line.strip('\r')
+		COMMENT_LINE = strippedLine.split(' ')
+		count = count + 1
+		#print(COMMENT_LINE)
+		#time.sleep(5)
+	# Check for 'p' Lines:
+	elif 'p' in line:
+		strippedLine = line.strip('\r')
+		PROBLEM_LINE = strippedLine.split(' ')
+	# Add WFF lines to WFF string
+	else:
+		WFF.append(line.strip('\r'))
+	# If the next character is a 'c', evaluate the current WFF
+	if(lines):
+		# Iterate through each possible character and verify check it
+		assignment = 0
+		for x in xrange(2**PROBLEM_LINE[2]):
+			assignment = assignment + 1
+			if(verify(assignment)):
+				output();
+				break
+
+	if count >= 2:
+		count = 0
+		COMMENT_LINE = ''
+		PROBLEM_LINE = ''
+		break
