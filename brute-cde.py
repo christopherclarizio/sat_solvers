@@ -37,17 +37,38 @@ def readFile():
 	INPUT = f.read()	
 	#print(INPUT)
 
-#def nextPossibleAssignment():
-#generates the next possible assingment for the current wff you are working with
 
+#generates the next possible assingment for the current wff you are working with
+#def nextPossibleAssignment():
+
+
+#takes a wff and an assignment and returns whether or not the assignment satisfied the wff
 def verify(assignment):
 	bit_assignment = bin(assignment)
-	print bit_assignment
-#takes a wff and an assignment and returns whether or not the assignment satisfied the wff
+	# print bit_assignment
+	variable_assignments = []
 
+	bit_assignment_s = (str(bit_assignment))[2:].zfill(int(PROBLEM_LINE[2]))
+	#print(bit_assignment_s)
+
+	#print(WFF)
+
+	WFF_Clauses = WFF.split(',0')
+	WFF_Clauses.remove('')
+	#print(WFF_Clauses)
+	for clause in WFF_Clauses:
+		clause = clause.split(',')
+		#print(clause)
+
+	# Iterate through 
+	# for i in range(0, int(PROBLEM_LINE[2])):
+	# 	variable_assignments[i] = int(bit_assignment_s[i])
+
+
+
+#generates the output line for the wff in the desire format
 def output():
 	print('lol')
-#generates the output line for the wff in the desire format
 
 #should time the execution time take for each wff starting with the first call 
 #to the assignment generator to the completion of the call to verify and avoid the
@@ -70,13 +91,13 @@ lines = INPUT.split('\n')
 for i in range(0, len(lines)):
 	# Check for 'p' Lines:
 	if 'p' in lines[i]:
-		print("Found 'p'")
+		#print("Found 'p'")
 		strippedLine = lines[i].strip('\r')
 		PROBLEM_LINE = strippedLine.split(' ')
 	
 	# Check For 'c' Lines:
 	elif 'c' in lines[i]:
-		print("Found 'c'")
+		#print("Found 'c'")
 		COMMENT_LINE = []
 		PROBLEM_LINE = []
 
@@ -90,7 +111,7 @@ for i in range(0, len(lines)):
 		# If the next character is a 'c', evaluate the current WFF
 		if i < (len(lines) - 2):
 			if 'c' in lines[i+1]:
-				print("Found new clause")
+				#print("Found new clause")
 
 				# Iterate through each possible character and verify check it
 				assignment = 0
