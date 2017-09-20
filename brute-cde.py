@@ -40,8 +40,9 @@ def readFile():
 #def nextPossibleAssignment():
 #generates the next possible assingment for the current wff you are working with
 
-def verify():
-	print('lol')
+def verify(assignment):
+	bit_assignment = bin(assignment)
+	print bit_assignment
 #takes a wff and an assignment and returns whether or not the assignment satisfied the wff
 
 def output():
@@ -62,41 +63,39 @@ if len(sys.argv[1:]) != 2:
 FILE_NAME = sys.argv[1]
 BINARY = sys.argv[2]
 
-readFile()
-#INPUT contains raw file
-
-count = 0
+readFile() # INPUT contains raw file
 
 lines = INPUT.split('\n')
 
-for line in lines:
-	print(line)
-	# Check For 'c' Lines:
-	if 'c' in line:
-		strippedLine = line.strip('\r')
-		COMMENT_LINE = strippedLine.split(' ')
-		count = count + 1
-		#print(COMMENT_LINE)
-		#time.sleep(5)
+for i in range(0, len(lines)):
 	# Check for 'p' Lines:
-	elif 'p' in line:
-		strippedLine = line.strip('\r')
+	if 'p' in lines[i]:
+		print("Found 'p'")
+		strippedLine = lines[i].strip('\r')
 		PROBLEM_LINE = strippedLine.split(' ')
+	
+	# Check For 'c' Lines:
+	elif 'c' in lines[i]:
+		print("Found 'c'")
+		COMMENT_LINE = []
+		PROBLEM_LINE = []
+
+		strippedLine = lines[i].strip('\r')
+		COMMENT_LINE = strippedLine.split(' ')
+	
 	# Add WFF lines to WFF string
 	else:
-		WFF.append(line.strip('\r'))
-	# If the next character is a 'c', evaluate the current WFF
-	if(lines):
-		# Iterate through each possible character and verify check it
-		assignment = 0
-		for x in xrange(2**PROBLEM_LINE[2]):
-			assignment = assignment + 1
-			if(verify(assignment)):
-				output();
-				break
+		WFF = WFF + lines[i].strip('\r')
 
-	if count >= 2:
-		count = 0
-		COMMENT_LINE = ''
-		PROBLEM_LINE = ''
-		break
+		# If the next character is a 'c', evaluate the current WFF
+		if i < (len(lines) - 2):
+			if 'c' in lines[i+1]:
+				print("Found new clause")
+
+				# Iterate through each possible character and verify check it
+				assignment = 0
+				for x in xrange(2**int(PROBLEM_LINE[2])):
+					if(verify(assignment)):
+						output();
+						break
+					assignment = assignment + 1
