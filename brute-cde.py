@@ -90,7 +90,7 @@ def output(verified):
 		COMPARE = '1'
 
 	# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
-	print('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, (END_TIME-START_TIME)* 10**6, ))
+	print('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}'.format(0=COMMENT_LINE[1], 1=PROBLEM_LINE[2], 2=PROBLEM_LINE[3], 3=COMMENT_LINE[2], 4=TOT_LITERALS, 5=SAT, 6=COMPARE, 7=(END_TIME-START_TIME)* 10**6, ))
 
 #should time the execution time take for each wff starting with the first call 
 #to the assignment generator to the completion of the call to verify and avoid the
