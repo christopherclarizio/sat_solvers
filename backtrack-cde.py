@@ -8,9 +8,10 @@ import sys
 import os
 import string
 import time
+import random
 
 # Globals:
-BIT_ASSIGNMENT_S = ''
+VALUE_STACK = []
 FILE_NAME = ''
 BINARY = ''
 INPUT = ''
@@ -48,32 +49,79 @@ def readFile():
 
 
 #takes a wff and an assignment and returns whether or not the assignment satisfied the wff
-def verify(assignment):
-	global BIT_ASSIGNMENT_S
-	bit_assignment = bin(assignment)
-	variable_assignments = []
-	BIT_ASSIGNMENT_S = (str(bit_assignment))[2:].zfill(int(PROBLEM_LINE[2]))
+def verify():
+	VALUE_STACK = [] # Stack with values for variables ex) [0, 1, 1, 0, 0]
+	wff_stack = [] # Stack with wffs in chronological order, each one in gets more reduced
+	flag = False
+	evaluating = True
+	backtrack = False
 
 	WFF_Clauses = WFF.split(',0')
-	WFF_Clauses.remove('')
+	WFF_Clauses.remove('') 	
+
+	wff_stack.append(WFF_Clauses)
 
 	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
 
-	flag = True  #  Switch flag if assignment fails the clause.
-
-	# Evaluate assignment against WFF where literals are OR'd in clauses and clauses are AND'd in WFF's.
-	for clause in WFF_Clauses:
-		clause = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
-		clauseFlag = False
-		
-		for i in xrange(0, len(clause)):
-			if int(clause[i]) < 0 and int(BIT_ASSIGNMENT_S[abs(int(clause[i])) - 1]) == 0:
-				clauseFlag = True
-			elif int(clause[i]) > 0 and int(BIT_ASSIGNMENT_S[abs(int(clause[i])) - 1]) == 1:
-				clauseFlag = True
-		if clauseFlag == False:
-			flag = False
+	while evaluating:
+		if counter == 2**int(PROBLEM_LINE[2]) # THIS IS INCORRECT, NEED TO HAVE CONDITION WHERE ALL OPTIONS HAVE BEEN EXHUASTED AND WFF IS UNSATISFIABLE
 			break
+		if wff_stack[-1] == None: # If the most recent wff is empty, then the wff is satisfiable
+			flag = True
+			break
+		elif len(VALUE_STACK) == PROBLEM_LINE[2]: # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
+			tried_value = VALUE_STACK.pop()
+			wff_stack.pop()
+			if tried_value == 0:
+				VALUE_STACK.append(1)
+			else:
+				VALUE_STACK.append(0)
+		# WE NEED SOME WAY TO PREVENT IT FROM INFINITE LOOP: IT WILL JUST FLIP BACK AND FORTH FROM 0 TO 1 AND BACK FOR MOST RECENT VARIABLE
+		elif backtrack = True: # Backtrack if any of the clauses in the previous wff were false
+			tried_value = VALUE_STACK.pop()
+			wff_stack.pop()
+			if tried_value == 0:
+				VALUE_STACK.append(1)
+			else:
+				VALUE_STACK.append(0)
+		else: # Go down the tree and assign randomly the next variable value
+			VALUE_STACK.append(random.randint(0,1))
+		backtrack = False
+		Clauses_Next = wff_stack[-1] # Initialize the next wff as the current wff
+		for clause in Clauses_Next: # Here, we go through the current wff and edit it to create the next wff
+			remove = False
+			clause = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
+			for variable in clause # Go through each variable in the clause
+				if abs(variable) == len(VALUE_STACK):
+					if variable < 0:
+						if VALUE_STACK[-1] == 0: # If the variable is 1, this clause returns true and move on to next clause
+							# REMOVE THIS CLAUSE
+							remove = True
+							break
+						else: # If the variable is 0, it is removed and the rest of the clause moves on down the branch
+							# REMOVE JUST THIS VARIABLE
+							break
+					else:
+						if VALUE_STACK[-1] == 1: # If the variable is 1, this clause returns true and move on to next clause
+							# REMOVE THIS CLAUSE
+							remove = True
+							break
+						else:  # If the variable is 0, it is removed and the rest of the clause moves on down the branch
+							# REMOVE JUST THIS VARIABLE
+							break
+				if removed: # If a clause was completely removed, move on to next clause
+					break
+			if len(clause) == 1 # If a clause only has one variable and that variable evaluates 0, the entire wff is false so we backtrack
+				if clause[0] < 0:
+					if VALUE_STACK[-1] == 1:
+						backtrack = True
+						break
+				else:
+					if VALUE_STACK[-1] == 0:
+						backtrack = True
+						break
+			
+		wff_stack.append(Clauses_Next) # Add the newly edited current wff to the stack
 
 	return flag
 
@@ -156,17 +204,14 @@ for i in range(0, len(lines)):
 				if 'c' in lines[i+1]:
 					num_wffs = num_wffs + 1
 
-					# Iterate through each possible character and verify check it
-					assignment = 0
+					# Verify the wff
 					flag = False
 					SAT = 'U'
 					START_TIME = time.time()
-					for x in xrange(2**int(PROBLEM_LINE[2])):
-						if(verify(assignment)):
-							flag = True
-							SAT = 'S'
-							break
-						assignment = assignment + 1
+					if(verify()):
+						flag = True
+						SAT = 'S'
+						break
 					END_TIME = time.time()
 					output(f, flag)
 
