@@ -110,7 +110,10 @@ readFile() # INPUT contains raw file
 
 lines = INPUT.split('\n')
 
+count = 0
 for i in range(0, len(lines)):
+	if count == 1:
+		break
 	# Check for 'p' Lines:
 	if 'p' in lines[i]:
 		#print("Found 'p'")
@@ -130,7 +133,8 @@ for i in range(0, len(lines)):
 	else:
 		if int(PROBLEM_LINE[2]) <= 10:  #  FOR TESTING PURPOSES
 			WFF = WFF + lines[i].strip('\r')
-
+			print(WFF)
+			count = count + 1
 			# If the next character is a 'c', evaluate the current WFF
 			if i < (len(lines) - 2):
 				if 'c' in lines[i+1]:
