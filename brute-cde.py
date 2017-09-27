@@ -10,6 +10,7 @@ import string
 import time
 
 # Globals:
+BIT_ASSIGNMENT_S = ''
 FILE_NAME = ''
 BINARY = ''
 INPUT = ''
@@ -46,7 +47,7 @@ def readFile():
 def verify(assignment):
 	bit_assignment = bin(assignment)
 	variable_assignments = []
-	bit_assignment_s = (str(bit_assignment))[2:].zfill(int(PROBLEM_LINE[2]))
+	BIT_ASSIGNMENT_S = (str(bit_assignment))[2:].zfill(int(PROBLEM_LINE[2]))
 
 	WFF_Clauses = WFF.split(',0')
 	WFF_Clauses.remove('')
@@ -59,10 +60,10 @@ def verify(assignment):
 		clause = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
 		clauseFlag = False
 		for i in xrange(0, len(clause)):
-			if int(clause[i]) < 0 and int(bit_assignment_s[i]) == 0:
+			if int(clause[i]) < 0 and int(BIT_ASSIGNMENT_S[i]) == 0:
 				clauseFlag = True
 				break
-			elif int(bit_assignment_s[i]) == 1:
+			elif int(BIT_ASSIGNMENT_S[i]) == 1:
 				clauseFlag = True
 				break
 		if clauseFlag == False:
@@ -79,18 +80,21 @@ def verify(assignment):
 
 #generates the output line for the wff in the desired format
 def output(verified):
-	# Predict SAT.
-	SAT = 'U'
-	if verified:
-		SAT = 'S'
-
 	# Compare SAT to Answer SAT.
 	COMPARE = '0'
 	if SAT == COMMENT_LINE[3]:
 		COMPARE = '1'
 
-	# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
-	print('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}'.format(0=COMMENT_LINE[1], 1=PROBLEM_LINE[2], 2=PROBLEM_LINE[3], 3=COMMENT_LINE[2], 4=TOT_LITERALS, 5=SAT, 6=COMPARE, 7=(END_TIME-START_TIME)* 10**6, ))
+	# Predict SAT.
+	SAT = 'U'
+	if verified:
+		SAT = 'S'
+		bit_list = list(BIT_ASSIGNMENT_S)
+		bit_string = ', '.join(bit_list)
+		# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
+		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}'.format(0=COMMENT_LINE[1], 1=PROBLEM_LINE[2], 2=PROBLEM_LINE[3], 3=COMMENT_LINE[2], 4=TOT_LITERALS, 5=SAT, 6=COMPARE, 7=(END_TIME-START_TIME)* 10**6, 8=bit_string))
+	else:
+		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f}'.format(0=COMMENT_LINE[1], 1=PROBLEM_LINE[2], 2=PROBLEM_LINE[3], 3=COMMENT_LINE[2], 4=TOT_LITERALS, 5=SAT, 6=COMPARE, 7=(END_TIME-START_TIME)* 10**6))
 
 #should time the execution time take for each wff starting with the first call 
 #to the assignment generator to the completion of the call to verify and avoid the
