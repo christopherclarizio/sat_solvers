@@ -80,7 +80,7 @@ def verify(assignment):
 
 
 #generates the output line for the wff in the desired format
-def output(verified):
+def output(f, verified):
 	global NUM_ANSWERS, NUM_CORRECT, NUM_S, NUM_U
 	EXECUTION_TIME = (END_TIME - START_TIME)* 10**6
 	
@@ -100,10 +100,10 @@ def output(verified):
 		bit_list = list(BIT_ASSIGNMENT_S)
 		bit_string = ','.join(bit_list)
 		# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
-		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME, bit_string))
+		f.write('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}\n'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME, bit_string))
 	else:
 		NUM_U = NUM_U + 1
-		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f}'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME))
+		f.write('{0},{1},{2},{3},{4},{5},{6},{7:.2f}\n'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME))
 
 
 
@@ -114,12 +114,18 @@ def output(verified):
 
 #using package time; time.time(), gives current time in seconds.
 
+
+
 num_wffs = 0
 # Parse Command Line:
 if len(sys.argv[1:]) != 2:
 	usage(1)
 FILE_NAME = sys.argv[1]
 BINARY = sys.argv[2]
+
+OUTPUT_FILE = FILE_NAME.split('/')[1]
+OUTPUT_FILE = OUTPUT_FILE.split('.')[0]
+f = open(OUTPUT_FILE+'.csv', 'w')
 
 readFile() # INPUT contains raw file
 
@@ -162,6 +168,7 @@ for i in range(0, len(lines)):
 							break
 						assignment = assignment + 1
 					END_TIME = time.time()
-					output(flag)
+					output(f, flag)
 
-print('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
+f.write('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
+f.close()
