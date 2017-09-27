@@ -49,6 +49,7 @@ def readFile():
 
 #takes a wff and an assignment and returns whether or not the assignment satisfied the wff
 def verify(assignment):
+	global BIT_ASSIGNMENT_S
 	bit_assignment = bin(assignment)
 	variable_assignments = []
 	BIT_ASSIGNMENT_S = (str(bit_assignment))[2:].zfill(int(PROBLEM_LINE[2]))
@@ -59,31 +60,49 @@ def verify(assignment):
 	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
 
 	flag = True  #  Switch flag if assignment fails the clause.
-	
+
+	'''
+	-2,-3,0
+	4,4,0
+	-2,-4,0
+	4,1,0
+	-3,1,0
+	-1,-1,0
+	-4,-4,0
+	2,-4,0
+	-3,2,0
+    -3,-4,0
+	'''
+
+	# Evaluate assignment against WFF where literals are OR'd in clauses and clauses are AND'd in WFF's.
 	for clause in WFF_Clauses:
 		clause = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
 		clauseFlag = False
 		for i in xrange(0, len(clause)):
-			if int(clause[i]) < 0 and int(BIT_ASSIGNMENT_S[i]) == 0:
+			if int(clause[i]) < 0 and int(BIT_ASSIGNMENT_S[abs(int(clause[i])) - 1]) == 0:
 				clauseFlag = True
-				break
-			elif int(BIT_ASSIGNMENT_S[i]) == 1:
+			elif int(BIT_ASSIGNMENT_S[abs(int(clause[i])) - 1]) == 1:
 				clauseFlag = True
-				break
 		if clauseFlag == False:
 			flag = False
+			# print('Line 88: Set Flag To False')
 			break
 
+	# print('WFF: {}'.format(WFF))
+	# print('BIT_ASSIGNMENT_S: {}'.format(BIT_ASSIGNMENT_S))
+	# print('Flag: {} - {}'.format(flag, BIT_ASSIGNMENT_S))
 	return flag
-
-	# Iterate through 
-	# for i in range(0, int(PROBLEM_LINE[2])):
-	# 	variable_assignments[i] = int(bit_assignment_s[i])
 
 
 
 #generates the output line for the wff in the desired format
 def output(verified):
+	global NUM_ANSWERS, NUM_CORRECT, NUM_S
+	EXECUTION_TIME = (END_TIME - START_TIME)* 10**6
+	
+	# Predict SAT.
+	SAT = 'U'
+
 	COMPARE = '0'
 	if COMMENT_LINE[3] != '?':
 		NUM_ANSWERS = NUM_ANSWERS + 1
@@ -93,18 +112,17 @@ def output(verified):
 			NUM_CORRECT = NUM_CORRECT + 1
 			COMPARE = '1'
 
-	# Predict SAT.
-	SAT = 'U'
+	
 	if verified:
 		NUM_S = NUM_S + 1
 		SAT = 'S'
 		bit_list = list(BIT_ASSIGNMENT_S)
-		bit_string = ', '.join(bit_list)
+		bit_string = ','.join(bit_list)
 		# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
-		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}'.format(0=COMMENT_LINE[1], 1=PROBLEM_LINE[2], 2=PROBLEM_LINE[3], 3=COMMENT_LINE[2], 4=TOT_LITERALS, 5=SAT, 6=COMPARE, 7=(END_TIME-START_TIME)* 10**6, 8=bit_string))
+		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME, bit_string))
 	else:
 		NUM_U = NUM_U + 1
-		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f}'.format(0=COMMENT_LINE[1], 1=PROBLEM_LINE[2], 2=PROBLEM_LINE[3], 3=COMMENT_LINE[2], 4=TOT_LITERALS, 5=SAT, 6=COMPARE, 7=(END_TIME-START_TIME)* 10**6))
+		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f}'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME))
 
 #should time the execution time take for each wff starting with the first call 
 #to the assignment generator to the completion of the call to verify and avoid the
@@ -125,17 +143,15 @@ readFile() # INPUT contains raw file
 lines = INPUT.split('\n')
 
 for i in range(0, len(lines)):
-	if num_wffs == 1:
-		break
 	# Check for 'p' Lines:
 	if 'p' in lines[i]:
-		#print("Found 'p'")
 		strippedLine = lines[i].strip('\r')
 		PROBLEM_LINE = strippedLine.split(' ')
 	
 	# Check For 'c' Lines:
 	elif 'c' in lines[i]:
-		#print("Found 'c'")
+		WFF = ''
+		BIT_ASSIGNMENT_S = ''
 		COMMENT_LINE = []
 		PROBLEM_LINE = []
 
@@ -146,12 +162,10 @@ for i in range(0, len(lines)):
 	else:
 		if int(PROBLEM_LINE[2]) <= 10:  #  FOR TESTING PURPOSES
 			WFF = WFF + lines[i].strip('\r')
-			num_wffs = num_wffs + 1
-			print(WFF)
 			# If the next character is a 'c', evaluate the current WFF
 			if i < (len(lines) - 2):
 				if 'c' in lines[i+1]:
-					#print("Found new clause")
+					num_wffs = num_wffs + 1
 
 					# Iterate through each possible character and verify check it
 					assignment = 0
@@ -164,4 +178,7 @@ for i in range(0, len(lines)):
 						assignment = assignment + 1
 					END_TIME = time.time()
 					output(flag)
-print('{0}, cde,{1},{2},{3},{4},{5}'.format(0=FILE_NAME, 1=num_wffs, 2=NUM_S, 3=NUM_U, 4=NUM_ANSWERS, 5=NUM_CORRECT))
+
+	if num_wffs == 5:
+		break
+print('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
