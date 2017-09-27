@@ -61,48 +61,30 @@ def verify(assignment):
 
 	flag = True  #  Switch flag if assignment fails the clause.
 
-	'''
-	-2,-3,0
-	4,4,0
-	-2,-4,0
-	4,1,0
-	-3,1,0
-	-1,-1,0
-	-4,-4,0
-	2,-4,0
-	-3,2,0
-    -3,-4,0
-	'''
-
 	# Evaluate assignment against WFF where literals are OR'd in clauses and clauses are AND'd in WFF's.
 	for clause in WFF_Clauses:
 		clause = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
 		clauseFlag = False
+		
 		for i in xrange(0, len(clause)):
 			if int(clause[i]) < 0 and int(BIT_ASSIGNMENT_S[abs(int(clause[i])) - 1]) == 0:
 				clauseFlag = True
-			elif int(BIT_ASSIGNMENT_S[abs(int(clause[i])) - 1]) == 1:
+			elif int(clause[i]) > 0 and int(BIT_ASSIGNMENT_S[abs(int(clause[i])) - 1]) == 1:
 				clauseFlag = True
 		if clauseFlag == False:
 			flag = False
-			# print('Line 88: Set Flag To False')
 			break
 
-	# print('WFF: {}'.format(WFF))
-	# print('BIT_ASSIGNMENT_S: {}'.format(BIT_ASSIGNMENT_S))
-	# print('Flag: {} - {}'.format(flag, BIT_ASSIGNMENT_S))
 	return flag
 
 
 
 #generates the output line for the wff in the desired format
 def output(verified):
-	global NUM_ANSWERS, NUM_CORRECT, NUM_S
+	global NUM_ANSWERS, NUM_CORRECT, NUM_S, NUM_U
 	EXECUTION_TIME = (END_TIME - START_TIME)* 10**6
 	
 	# Predict SAT.
-	SAT = 'U'
-
 	COMPARE = '0'
 	if COMMENT_LINE[3] != '?':
 		NUM_ANSWERS = NUM_ANSWERS + 1
@@ -115,7 +97,6 @@ def output(verified):
 	
 	if verified:
 		NUM_S = NUM_S + 1
-		SAT = 'S'
 		bit_list = list(BIT_ASSIGNMENT_S)
 		bit_string = ','.join(bit_list)
 		# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
@@ -123,6 +104,8 @@ def output(verified):
 	else:
 		NUM_U = NUM_U + 1
 		print('{0},{1},{2},{3},{4},{5},{6},{7:.2f}'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME))
+
+
 
 #should time the execution time take for each wff starting with the first call 
 #to the assignment generator to the completion of the call to verify and avoid the
@@ -170,15 +153,15 @@ for i in range(0, len(lines)):
 					# Iterate through each possible character and verify check it
 					assignment = 0
 					flag = False
+					SAT = 'U'
 					START_TIME = time.time()
 					for x in xrange(2**int(PROBLEM_LINE[2])):
 						if(verify(assignment)):
 							flag = True
+							SAT = 'S'
 							break
 						assignment = assignment + 1
 					END_TIME = time.time()
 					output(flag)
 
-	if num_wffs == 5:
-		break
 print('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
