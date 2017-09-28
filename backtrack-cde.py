@@ -1,4 +1,4 @@
-# brute-cde.py  :  brute forces sat
+# backtrack-cde.py  :  tree evaluates sat
 # Team          :  . . .
 # Date          :  . . .
 
@@ -52,6 +52,7 @@ def readFile():
 def verify():
 	VALUE_STACK = [] # Stack with values for variables ex) [0, 1, 1, 0, 0]
 	wff_stack = [] # Stack with wffs in chronological order, each one in gets more reduced
+	tried_stack = [] # Keeps track of variables for which both values were tried
 	flag = False
 	evaluating = True
 	backtrack = False
@@ -64,28 +65,53 @@ def verify():
 	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
 
 	while evaluating:
-		if counter == 2**int(PROBLEM_LINE[2]) # THIS IS INCORRECT, NEED TO HAVE CONDITION WHERE ALL OPTIONS HAVE BEEN EXHUASTED AND WFF IS UNSATISFIABLE
+		num_trues = 0
+		for var in tried_stack: # Count the number of trues
+			if var == True:
+				num_trues = num_trues + 1
+		if num_trues == PROBLEM_LINE[2] # If the number of trues is equal to the number of variables, all variables have tried all possibilities and the wff is unsatisfiable
 			break
+		if tried_stack == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
+			VALUE_STACK.pop()
+			wff_stack.pop()
+			tried_value = VALUE_STACK.pop()
+			wff_stack.pop()
+			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
+				VALUE_STACK.append(1)
+				tried_stack.pop()
+				tried_stack.append(True)
+			else:
+				VALUE_STACK.append(0)
+				tried_stack.pop()
+				tried_stack.append(True)
 		if wff_stack[-1] == None: # If the most recent wff is empty, then the wff is satisfiable
 			flag = True
 			break
 		elif len(VALUE_STACK) == PROBLEM_LINE[2]: # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
-			if tried_value == 0:
+			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
 				VALUE_STACK.append(1)
+				tried_stack.pop()
+				tried_stack.append(True)
 			else:
 				VALUE_STACK.append(0)
-		# WE NEED SOME WAY TO PREVENT IT FROM INFINITE LOOP: IT WILL JUST FLIP BACK AND FORTH FROM 0 TO 1 AND BACK FOR MOST RECENT VARIABLE
+				tried_stack.pop()
+				tried_stack.append(True)
 		elif backtrack = True: # Backtrack if any of the clauses in the previous wff were false
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
-			if tried_value == 0:
+			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
 				VALUE_STACK.append(1)
+				tried_stack.pop()
+				tried_stack.append(True)
 			else:
 				VALUE_STACK.append(0)
+				tried_stack.pop()
+				tried_stack.append(True)
 		else: # Go down the tree and assign randomly the next variable value
 			VALUE_STACK.append(random.randint(0,1))
+			tried_stack.append(False)
 		backtrack = False
 		Clauses_Next = wff_stack[-1] # Initialize the next wff as the current wff
 		for clause in Clauses_Next: # Here, we go through the current wff and edit it to create the next wff
@@ -109,7 +135,7 @@ def verify():
 						else:  # If the variable is 0, it is removed and the rest of the clause moves on down the branch
 							# REMOVE JUST THIS VARIABLE
 							break
-				if removed: # If a clause was completely removed, move on to next clause
+				if remove: # If a clause was completely removed, move on to next clause
 					break
 			if len(clause) == 1 # If a clause only has one variable and that variable evaluates 0, the entire wff is false so we backtrack
 				if clause[0] < 0:
@@ -145,8 +171,7 @@ def output(f, verified):
 	
 	if verified:
 		NUM_S = NUM_S + 1
-		bit_list = list(BIT_ASSIGNMENT_S)
-		bit_string = ','.join(bit_list)
+		bit_string = ','.join(VALUE_STACK)
 		# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
 		f.write('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}\n'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME, bit_string))
 	else:
