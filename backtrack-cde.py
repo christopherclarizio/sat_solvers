@@ -51,7 +51,7 @@ def readFile():
 #takes a wff and an assignment and returns whether or not the assignment satisfied the wff
 def verify():
 	VALUE_STACK = [] # Stack with values for variables ex) [0, 1, 1, 0, 0]
-	wff_stack = [] # Stack with wffs in chronological order, each one in gets more reduced
+	wff_stack = [] # Stack with wffs in characterronological order, each one in gets more reduced
 	tried_stack = [] # Keeps track of variables for which both values were tried
 	flag = False
 	evaluating = True
