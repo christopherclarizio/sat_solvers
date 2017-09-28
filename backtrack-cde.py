@@ -65,11 +65,14 @@ def verify():
 	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
 
 	while evaluating:
+		print('Are we at the end of the branch? {} =? {}'.format(len(VALUE_STACK), PROBLEM_LINE[2]))
+
 		num_trues = 0
 		for var in tried_stack: # Count the number of trues
 			if var == True:
 				num_trues = num_trues + 1
 		if num_trues == PROBLEM_LINE[2]: # If the number of trues is equal to the number of variables, all variables have tried all possibilities and the wff is unsatisfiable
+			evaluating = False
 			break
 		
 		if tried_stack == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
@@ -91,10 +94,13 @@ def verify():
 				num_clauses = num_clauses + 1
 		if num_clauses == 0: # If the most recent wff is empty, then the wff is satisfiable
 			flag = True
+			evaluating = False
 			break
 
-		elif len(VALUE_STACK) == PROBLEM_LINE[2]: # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
+		elif len(VALUE_STACK) == int(PROBLEM_LINE[2]): # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
 			tried_value = VALUE_STACK.pop()
+			print('Value Stack: {}'.format(VALUE_STACK))
+			print('Tried Stack before: {}'.format(tried_stack))
 			wff_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
 				VALUE_STACK.append(1)
@@ -104,6 +110,7 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
+			print('Tried Stack before: {}'.format(tried_stack))
 		elif backtrack == True: # Backtrack if any of the clauses in the previous wff were false
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
@@ -117,31 +124,47 @@ def verify():
 				tried_stack.append(True)
 		else: # Go down the tree and assign randomly the next variable value
 			VALUE_STACK.append(random.randint(0,1))
+			print('line 123: random number \'{}\' for variable number {}'.format(VALUE_STACK[-1], len(VALUE_STACK)))
 			tried_stack.append(False)
 		
 		backtrack = False
 		Clauses_Next = wff_stack[-1] # Initialize the next wff as the current wff
+		print('line 127: clauses_next \'{}\''.format(Clauses_Next))
 		remove_clauses = [] # List of clauses to be removed from current wff
 		index_count = 0
 		for clause in Clauses_Next: # Here, we go through the current wff and edit it to create the next wff
 			variables = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
 			remove_variables = []
 			variable_count = 0
-			
 			for variable in variables: # Go through each variable in the clause
+				all_same = False
+				if len(variables) > 1:
+					all_same = True
+					temp = variable
+					for x in range(1, len(variables)): # Flag for if all variables in clause are the exact same variable
+						if variables[x] == temp:
+							temp = variables[x]
+						else:
+							all_same = False
+							break
+
 				if variable != '' and abs(int(variable)) == len(VALUE_STACK):
-					if variable < 0:
+					if int(variable) < 0:
+						print('VALUE_STACK[-1]: {}'.format(VALUE_STACK[-1]))
 						if VALUE_STACK[-1] == 0: # If the variable is 1, this clause returns true and move on to next clause
 							remove_clauses.append(index_count) # Add this clause to clauses to be removed
 							break
 						else: # If the variable is 0, it is removed and the rest of the clause moves on down the branch
-							remove_variables.append(variable_count)
+							print('143 variable count: {}'.format(variable_count))
+							if not all_same:
+								remove_variables.append(variable_count)
 					else:
 						if VALUE_STACK[-1] == 1: # If the variable is 1, this clause returns true and move on to next clause
 							remove_clauses.append(index_count) # Add this clause to clauses to be removed
 							break
 						else:  # If the variable is 0, it is removed and the rest of the clause moves on down the branch
-							remove_variables.append(variable_count)
+							if not all_same:
+								remove_variables.append(variable_count)
 		
 				variable_count = variable_count + 1
 			
@@ -149,6 +172,15 @@ def verify():
 				variables[ind] = ''
 
 			Clauses_Next[index_count] = ','.join(variables)
+
+
+			commas = 0
+			for char in Clauses_Next[index_count]:
+				if char == ',':
+					commas = commas + 1
+
+			if commas == len(Clauses_Next[index_count]):
+				Clauses_Next[index_count] = ''
 
 			length = 0
 			for var in variables:
@@ -168,7 +200,7 @@ def verify():
 
 		for i in remove_clauses: # where i is the indices of Clauses_Next to be removed
 			Clauses_Next[i] = ''
-			
+
 		wff_stack.append(Clauses_Next) # Add the newly edited current wff to the stack
 
 	return flag
@@ -190,7 +222,7 @@ def output(f, verified):
 			NUM_CORRECT = NUM_CORRECT + 1
 			COMPARE = '1'
 
-	
+	print('Correct?: {}'.format(COMPARE))
 	if verified:
 		NUM_S = NUM_S + 1
 		bit_string = ','.join(VALUE_STACK)
@@ -240,23 +272,35 @@ for i in range(0, len(lines)):
 	
 	# Add WFF lines to WFF string
 	else:
-		if int(PROBLEM_LINE[2]) <= 10:  #  FOR TESTING PURPOSES
+		if int(PROBLEM_LINE[2]) <= 4:  #  FOR TESTING PURPOSES
 			WFF = WFF + lines[i].strip('\r')
 			# If the next character is a 'c', evaluate the current WFF
-			if i < (len(lines) - 2):
-				if 'c' in lines[i+1]:
-					num_wffs = num_wffs + 1
+			if 'c' in lines[i+1]:
+				num_wffs = num_wffs + 1
 
-					# Verify the wff
-					flag = False
-					SAT = 'U'
-					START_TIME = time.time()
-					if(verify()):
-						flag = True
-						SAT = 'S'
-						break
-					END_TIME = time.time()
-					output(f, flag)
+				# Verify the wff
+				flag = False
+				SAT = 'U'
+				START_TIME = time.time()
+				if(verify()):
+					flag = True
+					SAT = 'S'
+				END_TIME = time.time()
+				output(f, flag)
+			if i+2 == len(lines):
+				num_wffs = num_wffs + 1
+
+				# Verify the wff
+				flag = False
+				SAT = 'U'
+				START_TIME = time.time()
+				if(verify()):
+					flag = True
+					SAT = 'S'
+				END_TIME = time.time()
+				output(f, flag)
+				i = len(lines)
+				break
 
 f.write('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
 f.close()

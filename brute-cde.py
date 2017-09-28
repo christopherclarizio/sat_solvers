@@ -153,23 +153,40 @@ for i in range(0, len(lines)):						# Iterates over all the lines
 	else:
 		WFF = WFF + lines[i].strip('\r')
 		# If the next character is a 'c', evaluate the current WFF
-		if i < (len(lines) - 2):
-			if 'c' in lines[i+1]:
-				num_wffs = num_wffs + 1
+		if 'c' in lines[i+1]:
+			num_wffs = num_wffs + 1
 
-				# Iterate through each possible character and verify check it
-				assignment = 0
-				flag = False
-				SAT = 'U'
-				START_TIME = time.time()
-				for x in xrange(2**int(PROBLEM_LINE[2])):
-					if(verify(assignment)):
-						flag = True
-						SAT = 'S'
-						break
-					assignment = assignment + 1
-				END_TIME = time.time()
-				output(f, flag)
+			# Iterate through each possible character and verify check it
+			assignment = 0
+			flag = False
+			SAT = 'U'
+			START_TIME = time.time()
+			for x in xrange(2**int(PROBLEM_LINE[2])):
+				if(verify(assignment)):
+					flag = True
+					SAT = 'S'
+					break
+				assignment = assignment + 1
+			END_TIME = time.time()
+			output(f, flag)
+		if i+2 == len(lines):
+			num_wffs = num_wffs + 1
+
+			# Iterate through each possible character and verify check it
+			assignment = 0
+			flag = False
+			SAT = 'U'
+			START_TIME = time.time()
+			for x in xrange(2**int(PROBLEM_LINE[2])):
+				if(verify(assignment)):
+					flag = True
+					SAT = 'S'
+					break
+				assignment = assignment + 1
+			END_TIME = time.time()
+			output(f, flag)
+			i = len(lines)
+			break
 
 f.write('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
 f.close()
