@@ -85,10 +85,14 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
-		
-		if wff_stack[-1] == None: # If the most recent wff is empty, then the wff is satisfiable
+		num_clauses = 0
+		for c in wff_stack[-1]:
+			if c != '':
+				num_clauses = num_clauses + 1
+		if num_clauses == 0: # If the most recent wff is empty, then the wff is satisfiable
 			flag = True
 			break
+
 		elif len(VALUE_STACK) == PROBLEM_LINE[2]: # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
@@ -100,7 +104,7 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
-		elif backtrack = True: # Backtrack if any of the clauses in the previous wff were false
+		elif backtrack == True: # Backtrack if any of the clauses in the previous wff were false
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
@@ -119,13 +123,13 @@ def verify():
 		Clauses_Next = wff_stack[-1] # Initialize the next wff as the current wff
 		remove_clauses = [] # List of clauses to be removed from current wff
 		index_count = 0
-		for variables in Clauses_Next: # Here, we go through the current wff and edit it to create the next wff
-			variables = variables.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
+		for clause in Clauses_Next: # Here, we go through the current wff and edit it to create the next wff
+			variables = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
 			remove_variables = []
 			variable_count = 0
 			
 			for variable in variables: # Go through each variable in the clause
-				if abs(variable) == len(VALUE_STACK):
+				if variable != '' and abs(int(variable)) == len(VALUE_STACK):
 					if variable < 0:
 						if VALUE_STACK[-1] == 0: # If the variable is 1, this clause returns true and move on to next clause
 							remove_clauses.append(index_count) # Add this clause to clauses to be removed
@@ -142,9 +146,16 @@ def verify():
 				variable_count = variable_count + 1
 			
 			for ind in remove_variables:
-				Clauses_Next[index_count].pop(ind)
+				variables[ind] = ''
 
-			if len(variables) == 1: # If a clause only has one variable and that variable evaluates 0, the entire wff is false so we backtrack
+			Clauses_Next[index_count] = ','.join(variables)
+
+			length = 0
+			for var in variables:
+				if var != '':
+					length = length + 1
+
+			if length == 1: # If a clause only has one variable and that variable evaluates 0, the entire wff is false so we backtrack
 				if variables[0] < 0:
 					if VALUE_STACK[-1] == 1:
 						backtrack = True
@@ -155,8 +166,8 @@ def verify():
 						break
 			index_count = index_count + 1
 
-		for i in remove_clauses:
-			Clauses_Next.pop(i)
+		for i in remove_clauses: # where i is the indices of Clauses_Next to be removed
+			Clauses_Next[i] = ''
 			
 		wff_stack.append(Clauses_Next) # Add the newly edited current wff to the stack
 
