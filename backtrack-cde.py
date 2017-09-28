@@ -216,7 +216,7 @@ BINARY = sys.argv[2]
 
 OUTPUT_FILE = FILE_NAME.split('/')[1]
 OUTPUT_FILE = OUTPUT_FILE.split('.')[0]
-f = open(OUTPUT_FILE+'.csv', 'w')
+f = open('backtrack-'+OUTPUT_FILE+'.csv', 'w')
 
 readFile() # INPUT contains raw file
 

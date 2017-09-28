@@ -125,7 +125,7 @@ BINARY = sys.argv[2]
 
 OUTPUT_FILE = FILE_NAME.split('/')[1]
 OUTPUT_FILE = OUTPUT_FILE.split('.')[0]
-f = open(OUTPUT_FILE+'.csv', 'w')
+f = open('brute-'+OUTPUT_FILE+'.csv', 'w')
 
 readFile() # INPUT contains raw file
 
@@ -149,26 +149,25 @@ for i in range(0, len(lines)):
 	
 	# Add WFF lines to WFF string
 	else:
-		if int(PROBLEM_LINE[2]) <= 10:  #  FOR TESTING PURPOSES
-			WFF = WFF + lines[i].strip('\r')
-			# If the next character is a 'c', evaluate the current WFF
-			if i < (len(lines) - 2):
-				if 'c' in lines[i+1]:
-					num_wffs = num_wffs + 1
+		WFF = WFF + lines[i].strip('\r')
+		# If the next character is a 'c', evaluate the current WFF
+		if i < (len(lines) - 2):
+			if 'c' in lines[i+1]:
+				num_wffs = num_wffs + 1
 
-					# Iterate through each possible character and verify check it
-					assignment = 0
-					flag = False
-					SAT = 'U'
-					START_TIME = time.time()
-					for x in xrange(2**int(PROBLEM_LINE[2])):
-						if(verify(assignment)):
-							flag = True
-							SAT = 'S'
-							break
-						assignment = assignment + 1
-					END_TIME = time.time()
-					output(f, flag)
+				# Iterate through each possible character and verify check it
+				assignment = 0
+				flag = False
+				SAT = 'U'
+				START_TIME = time.time()
+				for x in xrange(2**int(PROBLEM_LINE[2])):
+					if(verify(assignment)):
+						flag = True
+						SAT = 'S'
+						break
+					assignment = assignment + 1
+				END_TIME = time.time()
+				output(f, flag)
 
 f.write('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
 f.close()
