@@ -65,44 +65,44 @@ def verify():
 	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
 
 	while evaluating:
+		#print('VALUE_STACK: {}'.format(VALUE_STACK))
+		#print('tried_stack: {}'.format(tried_stack))
+		#print('wff_stack: {}'.format(wff_stack))
 		num_trues = 0
 		for var in tried_stack: # Count the number of trues
 			if var == True:
 				num_trues = num_trues + 1
+
+		num_trues_row  = 0
+		for rev in reversed(tried_stack): # Count the number of trues in a row from the bottom
+			if rev == True:
+				num_trues_row = num_trues_row + 1
+			else:
+				break
+
 		if num_trues == PROBLEM_LINE[2]: # If the number of trues is equal to the number of variables, all variables have tried all possibilities and the wff is unsatisfiable
 			evaluating = False
 			break
 		
-		if len(tried_stack) > 0 and tried_stack[-1] == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
-			VALUE_STACK.pop()
-			wff_stack.pop()
-			print('Tried Stack before: {}'.format(tried_stack))
-			tried_stack.pop()	
-			tried_stack.pop()
-			tried_value = VALUE_STACK.pop()
-			if len(wff_stack) != 1:
-				wff_stack.pop()
-			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
-				VALUE_STACK.append(1)
-				tried_stack.append(True)
-			else:
-				VALUE_STACK.append(0)
-				tried_stack.append(True)
-			print('Backtracked value stack: {}'.format(VALUE_STACK))
-			print('Tried Stack after: {}'.format(tried_stack))
+		
+
+		if len(tried_stack) == 0 and len(VALUE_STACK) != 0: # If the number of trues is equal to the number of variables, all variables have tried all possibilities and the wff is unsatisfiable
+			evaluating = False
+			break
+
 		num_clauses = 0
 		for c in wff_stack[-1]:
 			if c != '':
 				num_clauses = num_clauses + 1
+
 		if num_clauses == 0: # If the most recent wff is empty, then the wff is satisfiable
 			flag = True
 			evaluating = False
 			break
-
 		elif len(VALUE_STACK) == int(PROBLEM_LINE[2]): # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
 			tried_value = VALUE_STACK.pop()
-			print('Value Stack: {}'.format(VALUE_STACK))
-			print('Tried Stack before: {}'.format(tried_stack))
+			#print('Value Stack: {}'.format(VALUE_STACK))
+			#print('Tried Stack before: {}'.format(tried_stack))
 			wff_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
 				VALUE_STACK.append(1)
@@ -112,8 +112,8 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
-			print('Value Stack after: {}'.format(VALUE_STACK))
-			print('Tried Stack after: {}'.format(tried_stack))
+			#print('Value Stack after: {}'.format(VALUE_STACK))
+			#print('Tried Stack after: {}'.format(tried_stack))
 		elif backtrack == True: # Backtrack if any of the clauses in the previous wff were false
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
@@ -125,16 +125,40 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
-		elif len(tried_stack) == 0 or (len(tried_stack) == 1 and tried_stack[-1] != True): # Go down the tree and assign randomly the next variable value
+		else: # Go down the tree and assign randomly the next variable value
 			VALUE_STACK.append(random.randint(0,1))
-			print('line 123: random number \'{}\' for variable number {}'.format(VALUE_STACK[-1], len(VALUE_STACK)))
+			#print('line 123: random number \'{}\' for variable number {}'.format(VALUE_STACK[-1], len(VALUE_STACK)))
 			tried_stack.append(False)
+
+
+		if len(tried_stack) > 1 and tried_stack[-1] == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
+			for i in xrange(0, num_trues_row):
+				VALUE_STACK.pop()
+				if len(wff_stack) != 1:
+					wff_stack.pop()
+				#print('Tried Stack before: {}'.format(tried_stack))
+				tried_stack.pop()
+			if len(tried_stack) == 0:	
+				break
+			tried_stack.pop()
+			tried_value = VALUE_STACK.pop()
+			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
+				VALUE_STACK.append(1)
+				tried_stack.append(True)
+			else:
+				VALUE_STACK.append(0)
+				tried_stack.append(True)
+			#print('Backtracked value stack: {}'.format(VALUE_STACK))
+			#print('Tried Stack after: {}'.format(tried_stack))
+			#print('WFF Stack after: {}'.format(wff_stack))
+
 		
 		backtrack = False
 		Clauses_Next = wff_stack[-1][:] # Initialize the next wff as the current wff
-		print('line 127: clauses_next \'{}\''.format(Clauses_Next))
+		#print('line 127: clauses_next \'{}\''.format(Clauses_Next))
 		remove_clauses = [] # List of clauses to be removed from current wff
 		index_count = 0
+
 		for clause in Clauses_Next: # Here, we go through the current wff and edit it to create the next wff
 			variables = clause.split(',')  #  '-1,2,3'  --> ['-1', '2', '3']
 			remove_variables = []
@@ -192,20 +216,21 @@ def verify():
 				if var != '':
 					length = length + 1
 
-			if length == 1: # If a clause only has one variable and that variable evaluates 0, the entire wff is false so we backtrack
-				if variables[0] < 0:
-					if VALUE_STACK[-1] == 1:
-						backtrack = True
-						break
-				else:
-					if VALUE_STACK[-1] == 0:
-						backtrack = True
-						break
+			if length == 1 and variables[0] != '': # If a clause only has one variable and that variable evaluates 0, the entire wff is false so we backtrack
+				if abs(int(variables[0])) == len(VALUE_STACK):
+					if int(variables[0]) < 0:
+						if VALUE_STACK[-1] == 1:
+							backtrack = True
+							break
+					else:
+						if VALUE_STACK[-1] == 0:
+							backtrack = True
+							break
 			index_count = index_count + 1
 
 		for i in remove_clauses: # where i is the indices of Clauses_Next to be removed
 			Clauses_Next[i] = ''
-		print('Clauses after: {}'.format(Clauses_Next))
+		#print('Clauses after: {}'.format(Clauses_Next))
 		wff_stack.append(Clauses_Next) # Add the newly edited current wff to the stack
 	return flag
 
