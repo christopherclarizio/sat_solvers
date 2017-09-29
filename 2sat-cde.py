@@ -68,7 +68,8 @@ def verify():
 	while not all(vals == 1 for vals in lit_vals):
 		lit_vals[next_lit - 1] = next_assign
 		stack.append(next_lit)
-
+		print("line 71 trying assignment of: {} to literal: {}".format(next_assign, next_lit))
+		
 		# Update clause_vals in prepartion for next_lit.
 		clause_Index = 0
 		for clause in WFF_Clauses:
@@ -101,12 +102,19 @@ def verify():
 			flag = True
 			break;
 		elif 0 in clause_vals:
-			next_lit = stack.pop()
-			if lit_vals[next_lit - 1] == 1:
+			print("line 104 clause_vals: {}".format(clause_vals))
+			possible = False
+			while len(stack) != 0:
+				next_lit = stack.pop()
+				if lit_vals[next_lit - 1] == 0:
+					next_assign = 1
+					possible = True
+					break
+				lit_vals[next_lit - 1] = -1  #  reset lit_vals
+			if not possible:
 				flag = False
+				print("line 113 lit_vals: {}".format(lit_vals))
 				break
-			else:
-				next_assign = 1
 		elif -1 in clause_vals:
 			clause_Index = 0
 			found_next_assign = False
@@ -209,7 +217,6 @@ for i in range(0, len(lines)):
 	
 	# Add WFF lines to WFF string
 	else:
-		if int(PROBLEM_LINE[2]) <= 4:  #  FOR TESTING PURPOSES
 			WFF = WFF + lines[i].strip('\r')
 			# If the next character is a 'c', evaluate the current WFF
 			if 'c' in lines[i+1]:
@@ -218,6 +225,7 @@ for i in range(0, len(lines)):
 				# Verify the wff
 				flag = False
 				SAT = 'U'
+				print("line 226 verifying problem number: {}".format(COMMENT_LINE[1]))
 				START_TIME = time.time()
 				if(verify()):
 					flag = True
