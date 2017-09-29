@@ -76,7 +76,7 @@ def verify():
 			numTrue = 0;
 			numFalse = 0;
 			for var in variables:
-				if var < 0:
+				if int(var) < 0:
 					if lit_vals[abs(int(var))-1] == 0:
 						numTrue = numTrue + 1
 					elif lit_vals[abs(int(var))-1] == 1:
@@ -133,7 +133,7 @@ def verify():
 						found_next_assign = True
 
 			if not found_next_assign:				  #  lit is not in the clause.
-				for i in xrange(0, len(lit_vals)):
+				for i in range(0, len(lit_vals)):
 					if lit_vals[i] == -1:
 						next_lit = i+1
 						next_assign = 0
