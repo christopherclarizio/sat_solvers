@@ -75,7 +75,7 @@ def verify():
 			evaluating = False
 			break
 		
-		if tried_stack == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
+		if tried_stack[-1] == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
 			VALUE_STACK.pop()
 			wff_stack.pop()
 			tried_value = VALUE_STACK.pop()
