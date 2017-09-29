@@ -127,7 +127,7 @@ BINARY = sys.argv[2]								# sets "BINARY" to the option of whether to trace or
 
 OUTPUT_FILE = FILE_NAME.split('/')[1]
 OUTPUT_FILE = OUTPUT_FILE.split('.')[0]				# creates the "OUTPUT_FILE" from the "FILE_NAME" that was sent
-f = open('brute-'+OUTPUT_FILE+'.csv', 'w')			# Opens the "OUTPUT_FILE" to write to in write mode
+f = open('brute-'+OUTPUT_FILE+'-corrected.csv', 'w')			# Opens the "OUTPUT_FILE" to write to in write mode
 
 readFile() # INPUT contains raw file
 
