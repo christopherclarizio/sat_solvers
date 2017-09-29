@@ -166,7 +166,7 @@ def output(f, verified):
 
 	if verified:
 		NUM_S = NUM_S + 1
-		bit_string = ''.join(str(val) for val in LIT_VALS)
+		bit_string = ','.join(str(val) for val in LIT_VALS)
 		# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
 		f.write('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}\n'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME, bit_string))
 	else:

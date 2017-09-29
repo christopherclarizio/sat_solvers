@@ -62,7 +62,8 @@ def verify():
 
 	wff_stack.append(WFF_Clauses)
 
-	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
+	global TOT_LITERALS
+	TOT_LITERALS = len(WFF_Clauses) * len(WFF_Clauses[2].split(','))
 
 	while evaluating:
 		num_trues = 0
@@ -236,7 +237,6 @@ def output(f, verified):
 			NUM_CORRECT = NUM_CORRECT + 1
 			COMPARE = '1'
 
-	print('Correct?: {}'.format(COMPARE))
 	if verified:
 		NUM_S = NUM_S + 1
 		bit_string = ','.join(VALUE_STACK)
