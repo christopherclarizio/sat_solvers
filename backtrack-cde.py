@@ -1,6 +1,6 @@
 # backtrack-cde.py  :  tree evaluates sat
-# Team          :  . . .
-# Date          :  . . .
+# Team          :  CDE: Chris-Donny-Emily
+# Date          :  9-26-17
 
 
 # Imports:
@@ -65,9 +65,6 @@ def verify():
 	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
 
 	while evaluating:
-		#print('VALUE_STACK: {}'.format(VALUE_STACK))
-		#print('tried_stack: {}'.format(tried_stack))
-		#print('wff_stack: {}'.format(wff_stack))
 		num_trues = 0
 		for var in tried_stack: # Count the number of trues
 			if var == True:
@@ -101,8 +98,6 @@ def verify():
 			break
 		elif len(VALUE_STACK) == int(PROBLEM_LINE[2]): # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
 			tried_value = VALUE_STACK.pop()
-			#print('Value Stack: {}'.format(VALUE_STACK))
-			#print('Tried Stack before: {}'.format(tried_stack))
 			wff_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
 				VALUE_STACK.append(1)
@@ -112,8 +107,6 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
-			#print('Value Stack after: {}'.format(VALUE_STACK))
-			#print('Tried Stack after: {}'.format(tried_stack))
 		elif backtrack == True: # Backtrack if any of the clauses in the previous wff were false
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
@@ -127,7 +120,6 @@ def verify():
 				tried_stack.append(True)
 		else: # Go down the tree and assign randomly the next variable value
 			VALUE_STACK.append(random.randint(0,1))
-			#print('line 123: random number \'{}\' for variable number {}'.format(VALUE_STACK[-1], len(VALUE_STACK)))
 			tried_stack.append(False)
 
 
@@ -136,7 +128,6 @@ def verify():
 				VALUE_STACK.pop()
 				if len(wff_stack) != 1:
 					wff_stack.pop()
-				#print('Tried Stack before: {}'.format(tried_stack))
 				tried_stack.pop()
 			if len(tried_stack) == 0:	
 				break
@@ -148,14 +139,9 @@ def verify():
 			else:
 				VALUE_STACK.append(0)
 				tried_stack.append(True)
-			#print('Backtracked value stack: {}'.format(VALUE_STACK))
-			#print('Tried Stack after: {}'.format(tried_stack))
-			#print('WFF Stack after: {}'.format(wff_stack))
-
 		
 		backtrack = False
 		Clauses_Next = wff_stack[-1][:] # Initialize the next wff as the current wff
-		#print('line 127: clauses_next \'{}\''.format(Clauses_Next))
 		remove_clauses = [] # List of clauses to be removed from current wff
 		index_count = 0
 
@@ -230,7 +216,6 @@ def verify():
 
 		for i in remove_clauses: # where i is the indices of Clauses_Next to be removed
 			Clauses_Next[i] = ''
-		#print('Clauses after: {}'.format(Clauses_Next))
 		wff_stack.append(Clauses_Next) # Add the newly edited current wff to the stack
 	return flag
 
@@ -301,35 +286,34 @@ for i in range(0, len(lines)):
 	
 	# Add WFF lines to WFF string
 	else:
-		if int(PROBLEM_LINE[2]) <= 4:  #  FOR TESTING PURPOSES
-			WFF = WFF + lines[i].strip('\r')
-			# If the next character is a 'c', evaluate the current WFF
-			if 'c' in lines[i+1]:
-				num_wffs = num_wffs + 1
+		WFF = WFF + lines[i].strip('\r')
+		# If the next character is a 'c', evaluate the current WFF
+		if 'c' in lines[i+1]:
+			num_wffs = num_wffs + 1
 
-				# Verify the wff
-				flag = False
-				SAT = 'U'
-				START_TIME = time.time()
-				if(verify()):
-					flag = True
-					SAT = 'S'
-				END_TIME = time.time()
-				output(f, flag)
-			if i+2 == len(lines):
-				num_wffs = num_wffs + 1
+			# Verify the wff
+			flag = False
+			SAT = 'U'
+			START_TIME = time.time()
+			if(verify()):
+				flag = True
+				SAT = 'S'
+			END_TIME = time.time()
+			output(f, flag)
+		if i+2 == len(lines):
+			num_wffs = num_wffs + 1
 
-				# Verify the wff
-				flag = False
-				SAT = 'U'
-				START_TIME = time.time()
-				if(verify()):
-					flag = True
-					SAT = 'S'
-				END_TIME = time.time()
-				output(f, flag)
-				i = len(lines)
-				break
+			# Verify the wff
+			flag = False
+			SAT = 'U'
+			START_TIME = time.time()
+			if(verify()):
+				flag = True
+				SAT = 'S'
+			END_TIME = time.time()
+			output(f, flag)
+			i = len(lines)
+			break
 
 f.write('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
 f.close()
