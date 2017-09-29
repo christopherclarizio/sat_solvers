@@ -1,9 +1,23 @@
 1. Christopher Clarizio, Emily Koykka, Donald Luc
+
 2. 45 hours where each person did 15 hours each.
+
 3. GitHub was used as the version control system to test out new iterations of the project development. We also tried to meet in person as often as possible, allowing one person to be the driver at any given time and the other(s) helping brainstorm concepts, algorithms, examples, and debugging. After any of us made major edits, we would push to our Git Hub repository so that the other could pull the most recent version to edit.
+
 4. Python was used along with the following imported modules: os, string, sys, random, and time.
+
 5. Python lists were used to represent not only the WFF's but any type of stack structure that was needed, whether it was the next clause or the next assignment. For the WFF's, each WFF was made up of a list of clauses split by 0's, with each clause being a string. Then, whenever we needed to evaluate a clause, we split each clause by commas into a list of variables, making the WFF list a list of lists of variables. We also used lists to store assignments simply which each index of the list being one plus the variable in the wff and the value there (1 or 0) being the assignment for that variable. For our stack structures, we used lists along with the list functions pop() and append() so that they acted like stacks. We had such stacks for choice points of wff stages, value assignments, and the evaluation state of each variable.
-6. {need data}
-7. {need graph}
-8. {analyze graph}
+
+6 and 7.
+	Brute kSAT
+
+	Backtrack kSAT
+
+	2sat 2SAT
+
+	
+
+
+8. For brute force the trend is that the worst case is exponential because as the number of variables increases then the possibilities needed to be tested is doubled. This is apparent because the graph shows a linear trend when on a logistic axis. For backtrack the best case scenario is better than exponential because invalid assignments are not further evaluated when already proven false and thus backtracks to another possible assignment. However the worse case scenario is still exponential when checking every single possible assignment for a WFF. For 2sat the  best case scenario is linear because it will guess the correct assignment in the first attempt. The worse case scenario is still exponential since there is a possibility that the algorithm will have to check all possible assignment, which is visible for unsatisfiable WFF’s.
+
 9. No extra programs or test cases were attempted.
