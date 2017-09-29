@@ -53,10 +53,9 @@ def verify():
 	flag = False
 
 	WFF_Clauses = WFF.split(',0')
-	WFF_Clauses.remove('') 	
+	WFF_Clauses.remove('')
 	global TOT_LITERALS
-	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
-
+	TOT_LITERALS = len(WFF_Clauses) * len(WFF_Clauses[2].split(','))
 
 	# Initialize two lists of -1's.
 	lit_vals = [-1] * int(PROBLEM_LINE[2])
@@ -68,7 +67,6 @@ def verify():
 	while not all(vals == 1 for vals in lit_vals):
 		lit_vals[next_lit - 1] = next_assign
 		stack.append(next_lit)
-		print("line 71 trying assignment of: {} to literal: {}".format(next_assign, next_lit))
 		
 		# Update clause_vals in prepartion for next_lit.
 		clause_Index = 0
@@ -102,7 +100,6 @@ def verify():
 			flag = True
 			break;
 		elif 0 in clause_vals:
-			print("line 104 clause_vals: {}".format(clause_vals))
 			possible = False
 			while len(stack) != 0:
 				next_lit = stack.pop()
@@ -113,7 +110,6 @@ def verify():
 				lit_vals[next_lit - 1] = -1  #  reset lit_vals
 			if not possible:
 				flag = False
-				print("line 113 lit_vals: {}".format(lit_vals))
 				break
 		elif -1 in clause_vals:
 			clause_Index = 0
@@ -217,35 +213,34 @@ for i in range(0, len(lines)):
 	
 	# Add WFF lines to WFF string
 	else:
-			WFF = WFF + lines[i].strip('\r')
-			# If the next character is a 'c', evaluate the current WFF
-			if 'c' in lines[i+1]:
-				num_wffs = num_wffs + 1
+		WFF = WFF + lines[i].strip('\r')
+		# If the next character is a 'c', evaluate the current WFF
+		if 'c' in lines[i+1]:
+			num_wffs = num_wffs + 1
 
-				# Verify the wff
-				flag = False
-				SAT = 'U'
-				print("line 226 verifying problem number: {}".format(COMMENT_LINE[1]))
-				START_TIME = time.time()
-				if(verify()):
-					flag = True
-					SAT = 'S'
-				END_TIME = time.time()
-				output(f, flag)
-			if i+2 == len(lines):
-				num_wffs = num_wffs + 1
+			# Verify the wff
+			flag = False
+			SAT = 'U'
+			START_TIME = time.time()
+			if(verify()):
+				flag = True
+				SAT = 'S'
+			END_TIME = time.time()
+			output(f, flag)
+		if i+2 == len(lines):
+			num_wffs = num_wffs + 1
 
-				# Verify the wff
-				flag = False
-				SAT = 'U'
-				START_TIME = time.time()
-				if(verify()):
-					flag = True
-					SAT = 'S'
-				END_TIME = time.time()
-				output(f, flag)
-				i = len(lines)
-				break
+			# Verify the wff
+			flag = False
+			SAT = 'U'
+			START_TIME = time.time()
+			if(verify()):
+				flag = True
+				SAT = 'S'
+			END_TIME = time.time()
+			output(f, flag)
+			i = len(lines)
+			break
 
 f.write('{0},cde,{1},{2},{3},{4},{5}'.format(FILE_NAME, num_wffs, NUM_S, NUM_U, NUM_ANSWERS, NUM_CORRECT))
 f.close()

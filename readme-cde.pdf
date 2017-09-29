@@ -1,5 +1,9 @@
 1. Christopher Clarizio, Emily Koykka, Donald Luc
-2.
-3. 
-4. Python: 
-5. 
+2. {finalize amt of time spent}
+3. GitHub was used as the version control system to test out new iterations of the project development.
+4. Python was used along with the following imported modules: os, string, sys, random, and time.
+5. Python lists were used to represent not only the WFF's but any type of stack structure that was needed, whether it was the next clause or the next assignment.
+6. {need data}
+7. {need graph}
+8. {analyze graph}
+9. No extra programs or test cases were attempted.

@@ -51,8 +51,8 @@ def verify(assignment):
 
 	WFF_Clauses = WFF.split(',0')												# Split "WFF" into clauses using split() and store into "WFF_Clauses"
 	WFF_Clauses.remove('')														# Remove unecessary characters from "WFF_Clauses" using remove()
-
-	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])					# calculate the number of literals in "WFF" and store into "TOT_LITERALS"
+	global TOT_LITERALS
+	TOT_LITERALS = len(WFF_Clauses) * len(WFF_Clauses[2].split(','))			# calculate the number of literals in "WFF" and store into "TOT_LITERALS"
 
 	flag = True  																# Boolean, stores whether the "assignment" satisfies the WFF; default to true
 
