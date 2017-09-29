@@ -50,7 +50,7 @@ def readFile():
 
 #takes a wff and an assignment and returns whether or not the assignment satisfied the wff
 def verify():
-	VALUE_STACK = [] # Stack with values for variables ex) [0, 1, 1, 0, 0]
+	value_stack = [] # Stack with values for variables ex) [0, 1, 1, 0, 0]
 	wff_stack = [] # Stack with wffs in characterronological order, each one in gets more reduced
 	tried_stack = [] # Keeps track of variables for which both values were tried
 	flag = False
@@ -84,7 +84,7 @@ def verify():
 		
 		
 
-		if len(tried_stack) == 0 and len(VALUE_STACK) != 0: # If the number of trues is equal to the number of variables, all variables have tried all possibilities and the wff is unsatisfiable
+		if len(tried_stack) == 0 and len(value_stack) != 0: # If the number of trues is equal to the number of variables, all variables have tried all possibilities and the wff is unsatisfiable
 			evaluating = False
 			break
 
@@ -97,48 +97,48 @@ def verify():
 			flag = True
 			evaluating = False
 			break
-		elif len(VALUE_STACK) == int(PROBLEM_LINE[2]): # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
-			tried_value = VALUE_STACK.pop()
+		elif len(value_stack) == int(PROBLEM_LINE[2]): # If we have reached the end of a branch (we have all variables assigned to something) backtrack and reassign that value
+			tried_value = value_stack.pop()
 			wff_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
-				VALUE_STACK.append(1)
+				value_stack.append(1)
 				tried_stack.pop()
 				tried_stack.append(True)
 			else:
-				VALUE_STACK.append(0)
+				value_stack.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
 		elif backtrack == True: # Backtrack if any of the clauses in the previous wff were false
-			tried_value = VALUE_STACK.pop()
+			tried_value = value_stack.pop()
 			wff_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
-				VALUE_STACK.append(1)
+				value_stack.append(1)
 				tried_stack.pop()
 				tried_stack.append(True)
 			else:
-				VALUE_STACK.append(0)
+				value_stack.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
 		else: # Go down the tree and assign randomly the next variable value
-			VALUE_STACK.append(random.randint(0,1))
+			value_stack.append(random.randint(0,1))
 			tried_stack.append(False)
 
 
 		if len(tried_stack) > 1 and tried_stack[-1] == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
 			for i in xrange(0, num_trues_row):
-				VALUE_STACK.pop()
+				value_stack.pop()
 				if len(wff_stack) != 1:
 					wff_stack.pop()
 				tried_stack.pop()
 			if len(tried_stack) == 0:	
 				break
 			tried_stack.pop()
-			tried_value = VALUE_STACK.pop()
+			tried_value = value_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
-				VALUE_STACK.append(1)
+				value_stack.append(1)
 				tried_stack.append(True)
 			else:
-				VALUE_STACK.append(0)
+				value_stack.append(0)
 				tried_stack.append(True)
 		
 		backtrack = False
@@ -161,16 +161,16 @@ def verify():
 						else:
 							all_same = False
 							break
-				if variable != '' and abs(int(variable)) == len(VALUE_STACK):
+				if variable != '' and abs(int(variable)) == len(value_stack):
 					if int(variable) < 0:
-						if VALUE_STACK[-1] == 0: # If the variable is 1, this clause returns true and move on to next clause
+						if value_stack[-1] == 0: # If the variable is 1, this clause returns true and move on to next clause
 							remove_clauses.append(index_count) # Add this clause to clauses to be removed
 							break
 						else: # If the variable is 0, it is removed and the rest of the clause moves on down the branch
 							if not all_same and len(variables) != 1:
 								remove_variables.append(variable_count)
 					else:
-						if VALUE_STACK[-1] == 1: # If the variable is 1, this clause returns true and move on to next clause
+						if value_stack[-1] == 1: # If the variable is 1, this clause returns true and move on to next clause
 							remove_clauses.append(index_count) # Add this clause to clauses to be removed
 							break
 						else:  # If the variable is 0, it is removed and the rest of the clause moves on down the branch
@@ -204,13 +204,13 @@ def verify():
 					length = length + 1
 
 			if length == 1 and variables[0] != '': # If a clause only has one variable and that variable evaluates 0, the entire wff is false so we backtrack
-				if abs(int(variables[0])) == len(VALUE_STACK):
+				if abs(int(variables[0])) == len(value_stack):
 					if int(variables[0]) < 0:
-						if VALUE_STACK[-1] == 1:
+						if value_stack[-1] == 1:
 							backtrack = True
 							break
 					else:
-						if VALUE_STACK[-1] == 0:
+						if value_stack[-1] == 0:
 							backtrack = True
 							break
 			index_count = index_count + 1
@@ -218,6 +218,9 @@ def verify():
 		for i in remove_clauses: # where i is the indices of Clauses_Next to be removed
 			Clauses_Next[i] = ''
 		wff_stack.append(Clauses_Next) # Add the newly edited current wff to the stack
+
+	global VALUE_STACK
+	VALUE_STACK = value_stack
 	return flag
 
 
@@ -239,7 +242,7 @@ def output(f, verified):
 
 	if verified:
 		NUM_S = NUM_S + 1
-		bit_string = ','.join(VALUE_STACK)
+		bit_string = ','.join(str(val) for val in VALUE_STACK)
 		# Prob No., No. Var., No. Clauses, Max Lit., Tot. Lit., S/U, 1/-1, Exec. Time, 1/0 (SAT)
 		f.write('{0},{1},{2},{3},{4},{5},{6},{7:.2f},{8}\n'.format(COMMENT_LINE[1], PROBLEM_LINE[2], PROBLEM_LINE[3], COMMENT_LINE[2], TOT_LITERALS, SAT, COMPARE, EXECUTION_TIME, bit_string))
 	else:
