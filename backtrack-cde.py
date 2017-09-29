@@ -65,8 +65,6 @@ def verify():
 	TOT_LITERALS = len(WFF.split(',')) - int(PROBLEM_LINE[3])
 
 	while evaluating:
-		print('Are we at the end of the branch? {} =? {}'.format(len(VALUE_STACK), PROBLEM_LINE[2]))
-
 		num_trues = 0
 		for var in tried_stack: # Count the number of trues
 			if var == True:
@@ -75,19 +73,23 @@ def verify():
 			evaluating = False
 			break
 		
-		if tried_stack[-1] == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
+		if len(tried_stack) > 0 and tried_stack[-1] == True: # If both values were tried for the current variable, backtrack twice and reassign variable from above
 			VALUE_STACK.pop()
 			wff_stack.pop()
+			print('Tried Stack before: {}'.format(tried_stack))
+			tried_stack.pop()	
+			tried_stack.pop()
 			tried_value = VALUE_STACK.pop()
-			wff_stack.pop()
+			if len(wff_stack) != 1:
+				wff_stack.pop()
 			if tried_value == 0: # If the current variable is being reassigned, then it has tried both options and cannot be tried again
 				VALUE_STACK.append(1)
-				tried_stack.pop()
 				tried_stack.append(True)
 			else:
 				VALUE_STACK.append(0)
-				tried_stack.pop()
 				tried_stack.append(True)
+			print('Backtracked value stack: {}'.format(VALUE_STACK))
+			print('Tried Stack after: {}'.format(tried_stack))
 		num_clauses = 0
 		for c in wff_stack[-1]:
 			if c != '':
@@ -110,7 +112,8 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
-			print('Tried Stack before: {}'.format(tried_stack))
+			print('Value Stack after: {}'.format(VALUE_STACK))
+			print('Tried Stack after: {}'.format(tried_stack))
 		elif backtrack == True: # Backtrack if any of the clauses in the previous wff were false
 			tried_value = VALUE_STACK.pop()
 			wff_stack.pop()
@@ -122,13 +125,13 @@ def verify():
 				VALUE_STACK.append(0)
 				tried_stack.pop()
 				tried_stack.append(True)
-		else: # Go down the tree and assign randomly the next variable value
+		elif len(tried_stack) == 0 or (len(tried_stack) == 1 and tried_stack[-1] != True): # Go down the tree and assign randomly the next variable value
 			VALUE_STACK.append(random.randint(0,1))
 			print('line 123: random number \'{}\' for variable number {}'.format(VALUE_STACK[-1], len(VALUE_STACK)))
 			tried_stack.append(False)
 		
 		backtrack = False
-		Clauses_Next = wff_stack[-1] # Initialize the next wff as the current wff
+		Clauses_Next = wff_stack[-1][:] # Initialize the next wff as the current wff
 		print('line 127: clauses_next \'{}\''.format(Clauses_Next))
 		remove_clauses = [] # List of clauses to be removed from current wff
 		index_count = 0
@@ -141,31 +144,27 @@ def verify():
 				if len(variables) > 1:
 					all_same = True
 					temp = variable
-					for x in range(1, len(variables)): # Flag for if all variables in clause are the exact same variable
+					for x in range(0, len(variables)): # Flag for if all variables in clause are the exact same variable
 						if variables[x] == temp:
 							temp = variables[x]
 						else:
 							all_same = False
 							break
-
 				if variable != '' and abs(int(variable)) == len(VALUE_STACK):
 					if int(variable) < 0:
-						print('VALUE_STACK[-1]: {}'.format(VALUE_STACK[-1]))
 						if VALUE_STACK[-1] == 0: # If the variable is 1, this clause returns true and move on to next clause
 							remove_clauses.append(index_count) # Add this clause to clauses to be removed
 							break
 						else: # If the variable is 0, it is removed and the rest of the clause moves on down the branch
-							print('143 variable count: {}'.format(variable_count))
-							if not all_same:
+							if not all_same and len(variables) != 1:
 								remove_variables.append(variable_count)
 					else:
 						if VALUE_STACK[-1] == 1: # If the variable is 1, this clause returns true and move on to next clause
 							remove_clauses.append(index_count) # Add this clause to clauses to be removed
 							break
 						else:  # If the variable is 0, it is removed and the rest of the clause moves on down the branch
-							if not all_same:
+							if not all_same and len(variables) != 1:
 								remove_variables.append(variable_count)
-		
 				variable_count = variable_count + 1
 			
 			for ind in remove_variables:
@@ -173,15 +172,21 @@ def verify():
 
 			Clauses_Next[index_count] = ','.join(variables)
 
+				
+			if Clauses_Next[index_count] != '' and Clauses_Next[index_count][0] == ',': # Remove leading comma
+				Clauses_Next[index_count] = Clauses_Next[index_count][1:]
+
+			if Clauses_Next[index_count] != '' and Clauses_Next[index_count][-1] == ',': # Remove trailing comma
+				Clauses_Next[index_count] = Clauses_Next[index_count][:-1]
 
 			commas = 0
 			for char in Clauses_Next[index_count]:
 				if char == ',':
 					commas = commas + 1
 
-			if commas == len(Clauses_Next[index_count]):
+			if commas == len(Clauses_Next[index_count]): # Remove clauses of just commas
 				Clauses_Next[index_count] = ''
-
+			
 			length = 0
 			for var in variables:
 				if var != '':
@@ -200,9 +205,8 @@ def verify():
 
 		for i in remove_clauses: # where i is the indices of Clauses_Next to be removed
 			Clauses_Next[i] = ''
-
+		print('Clauses after: {}'.format(Clauses_Next))
 		wff_stack.append(Clauses_Next) # Add the newly edited current wff to the stack
-
 	return flag
 
 
